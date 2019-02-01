@@ -1,72 +1,47 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux'
-import CheckOutSummary from '../../components/Order/CheckOutSummary/CheckOutSummary'
+import { Route, Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
 
-import { Route, Redirect } from 'react-router-dom'
-import ContactData from './ContactData/ContactData'
-import * as actions from '../../store/actions/index'
+import CheckoutSummary from '../../components/Order/CheckoutSummary/CheckoutSummary';
+import ContactData from './ContactData/ContactData';
+import * as actions from '../../store/actions/index';
 
 class Checkout extends Component {
 
-    // componentDidMount() {
-    //     this.props.onInitPurchase()
-    // }
-
-    //remove the stack and go back previous page
-    checkOutCancelHandler = () => {
+    checkoutCancelledHandler = () => {
         this.props.history.goBack();
     }
 
-    //replace the page and go to contact-data
-    checkOutContinueHandler = () => {
+    checkoutContinuedHandler = () => {
         this.props.history.replace('/checkout/contact-data');
     }
+
     render() {
-
         let summary = <Redirect to="/" />
-
         if (this.props.ings) {
-            const purchaseRedirect = this.props.purchased ? <Redirect to="/" /> : null
-
+            const purchasedRedirect = this.props.purchased ? <Redirect to="/" /> : null;
             summary = (
                 <div>
-                    {purchaseRedirect}
-                    <CheckOutSummary
+                    {purchasedRedirect}
+                    <CheckoutSummary
                         ingredients={this.props.ings}
-
-                        checkoutCancel={this.checkOutCancelHandler}
-                        checkoutContinue={this.checkOutContinueHandler}
-                    />
-
-                    <Route path={this.props.match.path + '/contact-data'}
-                        //by using render, we can pass props
-                        // render={(props) => (<ContactData ingredients={this.state.ingredients} price={this.state.totalPrice} {...props} />)} 
-                        component={ContactData}
-                    />
+                        checkoutCancelled={this.checkoutCancelledHandler}
+                        checkoutContinued={this.checkoutContinuedHandler} />
+                    <Route
+                        path={this.props.match.path + '/contact-data'}
+                        component={ContactData} />
                 </div>
             );
         }
-        return summary
+        return summary;
     }
 }
 
 const mapStateToProps = state => {
-
     return {
-        //has to be the same as the reduce state
-        ings: state.ingredients,
-        price: state.totalPrice,
+        ings: state.burgerBuilder.ingredients,
         purchased: state.order.purchased
     }
 };
-
-// const mapDispatchToProps = dispatch => {
-//     return {
-//         onInitPurchase: () => dispatch(actions.purchaseInit)
-//     };
-// };
-
-//don't need dispatch, since we are not dispatching anything
-// connect(null,dispatchToProps) -> if we don't have stateToProps (orders matters)
 
 export default connect(mapStateToProps)(Checkout);
